@@ -45,6 +45,7 @@ class QdrantMemoryStore:
         self.port = port or settings.qdrant_port
         self.http_port = http_port or settings.qdrant_http_port
         self.prefix = settings.qdrant_collection_prefix
+        self._degraded_mode = False
 
         # Connect via HTTP
         self.client = QdrantClient(
@@ -63,24 +64,38 @@ class QdrantMemoryStore:
 
     def _initialize_collections(self) -> None:
         """Create Qdrant collections for each memory type if they don't exist."""
+        # Test connection first
+        try:
+            self.client.get_collections()
+        except Exception as e:
+            self._degraded_mode = True
+            logger.warning(f"Qdrant connection failed: {e}")
+            logger.warning("Memory system starting in degraded mode - memories will not be persisted")
+            return
+
         vector_size = self.embedding_service.dimension
 
         for memory_type in MemoryType:
             collection_name = self._get_collection_name(memory_type)
 
-            # Check if collection exists
-            collections = self.client.get_collections().collections
-            collection_names = {c.name for c in collections}
+            try:
+                # Check if collection exists
+                collections = self.client.get_collections().collections
+                collection_names = {c.name for c in collections}
 
-            if collection_name not in collection_names:
-                logger.info(f"Creating collection: {collection_name}")
-                self.client.create_collection(
-                    collection_name=collection_name,
-                    vectors_config=VectorParams(
-                        size=vector_size,
-                        distance=Distance.COSINE,
-                    ),
-                )
+                if collection_name not in collection_names:
+                    logger.info(f"Creating collection: {collection_name}")
+                    self.client.create_collection(
+                        collection_name=collection_name,
+                        vectors_config=VectorParams(
+                            size=vector_size,
+                            distance=Distance.COSINE,
+                        ),
+                    )
+            except Exception as e:
+                logger.warning(f"Could not initialize collection {collection_name}: {e}")
+                logger.warning("Memory system will be in degraded mode until Qdrant is available")
+                self._degraded_mode = True
 
     async def store(self, memory: Memory) -> MemoryStoreResult:
         """Store a memory in the appropriate collection.
@@ -91,6 +106,12 @@ class QdrantMemoryStore:
         Returns:
             MemoryStoreResult with success status and memory ID
         """
+        if self._degraded_mode:
+            return MemoryStoreResult(
+                success=False,
+                message="Qdrant connection unavailable - memory system in degraded mode",
+            )
+
         try:
             # Generate embedding if not present
             if memory.embedding is None:
@@ -108,6 +129,7 @@ class QdrantMemoryStore:
                 "emotion": memory.metadata.emotion.value if memory.metadata.emotion else None,
                 "created_at": memory.metadata.created_at.isoformat(),
                 "last_accessed": memory.metadata.last_accessed.isoformat(),
+                "access_count": memory.metadata.access_count,
                 "expires_at": memory.metadata.expires_at.isoformat()
                 if memory.metadata.expires_at
                 else None,
@@ -356,6 +378,27 @@ class QdrantMemoryStore:
         except Exception as e:
             logger.error(f"Failed to get collection info: {e}")
             return {"name": collection_name, "error": str(e)}
+
+    def test_connection(self) -> bool:
+        """Test if Qdrant connection is available.
+
+        Returns:
+            True if connection is successful, False otherwise
+        """
+        try:
+            self.client.get_collections()
+            return True
+        except Exception:
+            return False
+
+    @property
+    def degraded_mode(self) -> bool:
+        """Check if memory store is in degraded mode.
+
+        Returns:
+            True if Qdrant is unavailable, False otherwise
+        """
+        return self._degraded_mode
 
 
 # Global memory store instance

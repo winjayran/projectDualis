@@ -14,10 +14,15 @@ sentence-transformers>=2.3.0
 
 # Utilities
 python-dotenv>=1.0.0
+python-multipart>=0.0.9
 loguru>=0.7.0
 
 # Sandbox (Phase 2.5)
 docker>=7.0.0  # For Docker SDK
+
+# Audio Processing (Phase 3)
+edge-tts>=6.1.0  # Text-to-Speech
+# whisper is optional for local STT: pip install openai-whisper
 
 # Development
 pytest>=7.4.0

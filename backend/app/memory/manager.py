@@ -181,7 +181,7 @@ class MemoryManager:
                             continue
 
                         # Retrieve the linked memory
-                        link_type = self._infer_memory_type(link_id)
+                        link_type = await self._infer_memory_type(link_id)
                         if not link_type:
                             continue
 
@@ -207,15 +207,20 @@ class MemoryManager:
         chains.sort(key=lambda c: c.score, reverse=True)
         return chains[:10]  # Top 10 chains
 
-    def _infer_memory_type(self, memory_id: UUID) -> MemoryType | None:
-        """Try to infer memory type from ID or other heuristics.
+    async def _infer_memory_type(self, memory_id: UUID) -> MemoryType | None:
+        """Try to infer memory type from ID by checking all collections.
 
-        In production, would use a separate index or metadata store.
-        For now, tries all collections.
+        In production, maintain a separate ID->type index for efficiency.
         """
-        # Simple approach: try each collection
-        # In production, maintain a separate ID->type mapping
-        return None  # Placeholder - requires implementation
+        # Try each collection type
+        for memory_type in MemoryType:
+            try:
+                result = await self.store.get_by_id(memory_id, memory_type)
+                if result is not None:
+                    return memory_type
+            except Exception:
+                continue
+        return None
 
     def _score_chain(self, chain: MemoryChain, query: str) -> float:
         """Score a memory chain's relevance to the query.
