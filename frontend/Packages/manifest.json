@@ -2,12 +2,10 @@
   "dependencies": {
     "com.unity.collab-proxy": "2.3.1",
     "com.unity.feature.development": "1.0.1",
-    "com.unity.textmeshpro": "4.0.0-pre.4",
+    "com.unity.textmeshpro": "3.0.6",
     "com.unity.timeline": "1.8.7",
     "com.unity.ugui": "2.0.0",
     "com.unity.visualscripting": "1.9.4",
-    "com.vrmc.gltf": "2.1.0",
-    "com.vrmc.univrm": "2.1.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
@@ -38,15 +36,7 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
-  },
-  "scopedRegistries": [
-    {
-      "name": "VRM",
-      "url": "https://registry.npmjs.com",
-      "scopes": [
-        "com.vrmc"
-      ]
-    }
-  ]
+    "com.unity.modules.xr": "1.0.0",
+    "com.unity.modules.subsystems": "1.0.0"
+  }
 }

@@ -61,6 +61,7 @@ The development of Project Dualis is structured into four main phases:
 - [x] Add graceful degradation when Qdrant is unavailable.
 - [ ] Complete memory consolidation and forgetting mechanisms.
 - [ ] Add memory importance scoring and decay.
+- [ ] **Qdrant integration not yet tested** (Docker WSL2 issues)
 
 ### 📍 Phase 2: Companion Ability (Backend) ✅ *Completed*
 *Goal: Build the emotional AI companion integrated with memory.*
@@ -99,17 +100,20 @@ The development of Project Dualis is structured into four main phases:
 - [x] Add STT HTTP client for Unity (Whisper API integration).
 - [x] Create comprehensive integration tests (Unity + Python).
 - [x] Add editor tools for config asset creation and scene setup.
+- [x] **Web-based Chat UI** for easy testing without Unity
 
 **Issues Encountered:**
 - Docker registry connection issues in WSL preventing Qdrant from running
 - No VRM model included (user needs to download separately)
 - Unity scene setup requires manual editor configuration
 - Standalone build packaging not completed
+- **Qdrant not yet tested** (networking issues in WSL2)
 
 **Remaining Tasks:**
 - [ ] Complete Unity UI Canvas setup and element connection
 - [ ] Test end-to-end chat flow with actual VRM model
 - [ ] Resolve Docker networking issues for WSL2
+- [ ] Test Qdrant memory system functionality
 - [ ] Package standalone build (requires Unity Editor build process)
 - [ ] Test transparent window mode on actual Windows system
 
@@ -163,7 +167,8 @@ pip install -r backend/requirements.txt
 
 The backend will start in "graceful degradation" mode without Qdrant - chat, TTS, and emotions will work, but memory features will be disabled.
 
-6. **Access the API:**
+6. **Access the Web Chat UI:**
+- Web Chat: http://localhost:8000 or http://localhost:8000/static/chat.html
 - API Documentation: http://localhost:8000/docs
 - Health Check: http://localhost:8000/health
 
@@ -176,6 +181,7 @@ The `env.sh` file contains all configuration options. Key variables:
 | `LLM_API_KEY` | Your DeepSeek/OpenAI API key | *required* |
 | `LLM_BASE_URL` | LLM API endpoint | `https://api.deepseek.com/v1` |
 | `LLM_MODEL` | Model name | `deepseek-chat` |
+| `LLM_MAX_TOKENS` | Max tokens per response (max 8192 for DeepSeek) | `8192` |
 | `QDRANT_HOST` | Qdrant host | `localhost` |
 | `SANDBOX_ENABLED` | Enable code sandbox | `true` |
 
@@ -186,6 +192,7 @@ The `env.sh` file contains all configuration options. Key variables:
 - **Backend:** Python 3.10+, FastAPI, Pydantic
 - **Memory Storage:** Qdrant (Vector DB), Sentence Transformers (embeddings)
 - **Frontend / Avatar:** Unity 3D (C#, UniVRM, placeholder system)
+- **Web UI:** HTML/CSS/JavaScript with WebSocket support
 - **Audio Processing:** Whisper (STT), Edge-TTS (TTS)
 - **Sandbox:** Docker / Apptainer (for skill evolution)
 - **Communication:** WebSocket (real-time Unity-backend IPC)
@@ -207,26 +214,54 @@ curl http://localhost:8000/api/v1/tts/voices
 curl http://localhost:8000/api/v1/stt/models
 ```
 
+### Web Chat UI Test
+1. Start backend with `./start.sh` (option 1)
+2. Open http://localhost:8000 in your browser
+3. Send messages to test the chat interface
+
 ### Unity Tests
-- Open Unity project
-- Open Main scene
-- Press Play to test basic functionality
-- Check console for WebSocket connection status
+1. Copy frontend to Windows (Unity doesn't work well with WSL filesystem)
+2. Open Unity project in Unity Hub
+3. Open Main scene
+4. Press Play to test basic functionality
+5. Check console for WebSocket connection status
 
 ---
 
 ## 📝 Known Issues
 
-### Phase 3 Limitations
-1. **Docker in WSL**: Docker registry connection issues prevent Qdrant from running in WSL2 environments. Workaround: Use Docker Desktop on Windows directly, or skip Qdrant for basic testing.
+### ⚠️ Important Limitations
+1. **Qdrant Not Tested**: Docker registry connection issues prevent Qdrant from running in WSL2. Memory features have graceful degradation but are not yet tested.
 2. **No VRM Model Included**: The project uses VRM format for 3D avatars, but no model is included due to licensing. Users must download their own VRM models.
-3. **Unity Setup Complexity**: Scene requires manual setup in Unity Editor (connecting UI elements, creating config assets).
+3. **Unity on WSL**: Unity Editor cannot run directly in WSL. The frontend must be copied to Windows for development.
 4. **Transparent Window**: Only implemented for Windows via DWM API; Linux/macOS require native plugins.
 
 ### Workarounds
 - **No Qdrant**: Backend runs in "graceful degradation" mode - chat works but memory features are disabled
 - **No VRM Model**: A placeholder 3D figure (capsule/sphere) is created automatically for testing
-- **Debug Display**: On-screen debug UI shows connection status and messages in Unity
+- **Web UI**: Use the web chat interface at http://localhost:8000 for quick testing without Unity
+- **Unity Development**: Copy `frontend/` folder to Windows filesystem before opening in Unity Hub
+
+---
+
+## 📖 Recent Updates
+
+### Backend (March 2026)
+- Added **Web-based Chat UI** at `backend/static/chat.html` for easy testing
+- Fixed `LLM_MAX_TOKENS` compatibility with DeepSeek API (changed from 16384 to 8192)
+- Added static file serving to FastAPI for web UI access
+- Root URL now redirects to the chat interface
+
+### Unity Frontend (March 2026)
+- Fixed all namespace conflicts (`ProjectDualis.Debug` → `ProjectDualis.DebugUI`)
+- Added `using Debug = UnityEngine.Debug;` alias to all files using Debug class
+- Fixed `textmeshpo` typo in manifest.json → `textmeshpro`
+- Fixed `DestroyImmediate` calls to use `Object.DestroyImmediate`
+- Removed invalid MonoBehaviour components from Main.unity scene
+- Added missing Windows API constants (`SWP_NOOWNERZORDER`)
+- Fixed nullable bool operator issues in AutoSetupUI.cs
+- Added proper using statements for all namespace references
+- Created minimal Main.unity scene with just Camera and Light
 
 ---
 

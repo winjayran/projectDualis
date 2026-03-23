@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
+using Debug = UnityEngine.Debug;
 
 namespace ProjectDualis.Editor
 {
@@ -33,7 +34,7 @@ namespace ProjectDualis.Editor
                 {
                     return;
                 }
-                DestroyImmediate(existingCanvas);
+                Object.DestroyImmediate(existingCanvas);
             }
 
             // Create Canvas
@@ -173,7 +174,7 @@ namespace ProjectDualis.Editor
             inputRect.anchorMin = new Vector2(0, 0);
             inputRect.anchorMax = new Vector2(1, 0.15f);
             inputRect.offsetMin = new Vector2(20, 10);
-            inputRect.offsetMax = new Vector2(-20, -10));
+            inputRect.offsetMax = new Vector2(-20, -10);
 
             Image inputImage = inputPanelGO.AddComponent<Image>();
             inputImage.color = new Color(0.1f, 0.1f, 0.1f, 0.5f);

@@ -4,6 +4,7 @@ using System.Text;
 using Newtonsoft.Json;
 using UnityEngine;
 using ProjectDualis.Core;
+using Debug = UnityEngine.Debug;
 
 namespace ProjectDualis.Network
 {
@@ -249,7 +250,7 @@ namespace ProjectDualis.Network
             SendMessage(JsonConvert.SerializeObject(msg));
         }
 
-        private void SendMessage(string message)
+        private new void SendMessage(string message)
         {
             if (!IsConnected)
             {

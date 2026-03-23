@@ -4,6 +4,7 @@ using ProjectDualis.Network;
 using ProjectDualis.Audio;
 using ProjectDualis.Avatar;
 using ProjectDualis.UI;
+using Debug = UnityEngine.Debug;
 
 namespace ProjectDualis.Core
 {

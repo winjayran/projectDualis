@@ -3,6 +3,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
 using ProjectDualis.Core;
+using Debug = UnityEngine.Debug;
 
 namespace ProjectDualis.Avatar
 {
@@ -176,10 +177,8 @@ namespace ProjectDualis.Avatar
             material.color = new Color(0.8f, 0.6f, 0.9f); // Light purple
             meshRenderer.material = material;
 
-            // Add animator for blend shapes
-            var animator = model.AddComponent<Animator>();
-            var controller = new AnimatorRuntimeAnimatorController();
-            animator.runtimeAnimatorController = controller;
+            // Add animator for potential animations
+            model.AddComponent<Animator>();
 
             // Add look at component placeholder
             var lookAtObj = new GameObject("LookAt");
@@ -265,18 +264,5 @@ namespace ProjectDualis.Avatar
             }
         }
         #endif
-
-        /// <summary>
-        /// Simple runtime animator controller for placeholder.
-        /// </summary>
-        private class AnimatorRuntimeAnimatorController : RuntimeAnimatorController
-        {
-            public override int animationClipsCount => 0;
-
-            public override AnimationClip GetAnimationClip(int index)
-            {
-                return null;
-            }
-        }
     }
 }

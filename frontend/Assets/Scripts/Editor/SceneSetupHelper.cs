@@ -1,5 +1,8 @@
 using UnityEngine;
 using UnityEditor;
+using ProjectDualis.Core;
+using ProjectDualis.DebugUI;
+using Debug = UnityEngine.Debug;
 
 namespace ProjectDualis.Editor
 {

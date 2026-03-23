@@ -1,6 +1,9 @@
 """API module for Project Dualis."""
+from pathlib import Path
+
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.chat import router as chat_router
 from app.api.memory import router as memory_router
@@ -37,6 +40,11 @@ def create_app() -> FastAPI:
     app.include_router(tts_router)
     app.include_router(stt_router)
 
+    # Serve static files (web chat UI)
+    static_dir = Path(__file__).parent.parent.parent / "static"
+    if static_dir.exists():
+        app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
     # WebSocket endpoint for Unity client
     @app.websocket("/ws")
     async def websocket_route(
@@ -68,6 +76,13 @@ def create_app() -> FastAPI:
             "qdrant_connected": "connected" if memory_store.test_connection() else "disconnected",
             "docker_available": "available" if executor.test_connection() else "unavailable",
         }
+
+    # Redirect root to chat UI
+    @app.get("/")
+    async def root():
+        """Redirect to web chat UI."""
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url="/static/chat.html")
 
     # Startup event
     @app.on_event("startup")

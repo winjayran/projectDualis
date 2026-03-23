@@ -1,6 +1,8 @@
 using UnityEngine;
+using ProjectDualis.Core;
+using Debug = UnityEngine.Debug;
 
-namespace ProjectDualis.Debug
+namespace ProjectDualis.DebugUI
 {
     /// <summary>
     /// Simple on-screen debug display for testing.

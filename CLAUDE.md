@@ -8,6 +8,7 @@ Project Dualis is a next-generation 3D AI virtual entity combining an emotional 
 - **LLM**: OpenAI-compatible endpoint (supports DeepSeek, OpenAI, etc.)
 - **Memory**: Qdrant vector DB + RAG with 4-category hierarchical system
 - **Execution**: Docker/Apptainer sandbox for self-written plugins
+- **Web UI**: HTML/CSS/JavaScript chat interface for testing
 
 ## Project Structure
 ```
@@ -24,6 +25,8 @@ projectDualis/
 │   │   ├── companion/    # Companion mode (Phase 2)
 │   │   ├── sandbox/      # Skill evolution (Phase 2.5)
 │   │   └── models/       # Data models
+│   ├── static/           # Web chat UI
+│   │   └── chat.html     # Web-based chat interface
 │   ├── tests/
 │   │   ├── test_phase3_integration.py
 │   │   ├── test_companion.py
@@ -32,13 +35,15 @@ projectDualis/
 │   └── requirements.txt
 ├── frontend/             # Unity project (Phase 3)
 │   └── Assets/
+│       ├── Scenes/       # Unity scenes
+│       │   └── Main.unity
 │       └── Scripts/
 │           ├── Core/           # GameManager, Config, WindowController
 │           ├── Network/        # WebSocket, STT client
 │           ├── Audio/          # TTS/STT handling
 │           ├── Avatar/         # AvatarManager, VRMLoader, PlaceholderAvatar
 │           ├── UI/             # UI Manager
-│           ├── Debug/          # Debug display for testing
+│           ├── DebugUI/        # Debug display (renamed from Debug)
 │           └── Editor/         # Editor tools and scripts
 ├── logs/                # Runtime logs
 ├── CLAUDE.md
@@ -61,8 +66,9 @@ projectDualis/
 - **Skill registry with verification and OpenAI schema export**
 - **Import whitelist and pattern blocking for security**
 - Backend TTS/STT endpoints (Edge-TTS, Whisper API)
+- **Web-based Chat UI** for easy testing
 
-### ⚠️ Phase 3: Unity 3D Client (Partial Implementation)
+### ⚠️ Phase 3: Unity 3D Client (Partial Implementation - Not Yet Completed)
 **Implemented:**
 - **Unity 3D project structure** with all C# scripts
 - **WebSocket communication** (Unity native `System.Net.WebSockets.ClientWebSocket`)
@@ -74,12 +80,26 @@ projectDualis/
 - **WindowController** for transparent windows (Windows DWM API)
 - **Editor tools**: Config asset creation, scene setup helpers
 - **Integration tests** for Phase 3 components
+- **Web Chat UI** at `backend/static/chat.html`
+
+**Recent Fixes (March 2026):**
+- Fixed namespace conflicts: `ProjectDualis.Debug` → `ProjectDualis.DebugUI`
+- Added `using Debug = UnityEngine.Debug;` alias to all files using Debug class
+- Fixed `textmeshpo` typo in manifest.json → `textmeshpro`
+- Fixed `DestroyImmediate` calls to use `Object.DestroyImmediate`
+- Removed invalid MonoBehaviour components from Main.unity scene
+- Added missing Windows API constant `SWP_NOOWNERZORDER`
+- Fixed nullable bool operator issues in AutoSetupUI.cs
+- Added proper using statements for ProjectDualis.Core, ProjectDualis.UI, ProjectDualis.DebugUI
+- Created minimal Main.unity scene with just Camera and Light
+- Added root redirect to chat UI in FastAPI
 
 **Issues Encountered:**
 - Docker registry connection fails in WSL2, preventing Qdrant from running
 - VRM model not included (user must obtain separately due to licensing)
 - Unity UI framework exists but requires manual setup in Editor
 - Full end-to-end testing not completed
+- **Qdrant integration not yet tested** (networking issues)
 
 **Files Added in Phase 3:**
 ```
@@ -101,7 +121,7 @@ frontend/Assets/Scripts/
 │   └── PlaceholderAvatar.cs    # Simple 3D placeholder
 ├── UI/
 │   └── DualisUIManager.cs        # Chat UI
-├── Debug/
+├── DebugUI/
 │   └── DebugDisplay.cs          # On-screen debug UI
 └── Editor/
     ├── DualisConfigEditor.cs    # Config asset editor
@@ -115,6 +135,7 @@ frontend/Assets/Scripts/
 - Enhanced emotion classification
 - Complete Unity UI Canvas setup with full chat interface
 - Local Whisper model Python integration (framework exists, not implemented)
+- **Qdrant testing** (waiting for Docker networking fix)
 
 ### 🚧 Pending
 - Unity standalone build packaging
@@ -129,6 +150,7 @@ frontend/Assets/Scripts/
 
 ### Phase 1: Memory OS ✅ *Completed*
 Implemented 4-category hierarchical memory with Qdrant vector storage and non-linear chained retrieval.
+**Status**: Code complete, Qdrant integration not yet tested due to Docker WSL2 issues.
 
 ### Phase 2: Companion Ability ✅ *Completed*
 Emotional AI companion with dual-mode prompts and emotion detection.
@@ -136,22 +158,29 @@ Emotional AI companion with dual-mode prompts and emotion detection.
 ### Phase 2.5: Skill Sandbox ✅ *Completed*
 Self-evolving skill system with Docker sandbox for secure code execution.
 
-### Phase 3: 3D Figure (Unity) ⚠️ *Partial*
+### Phase 3: 3D Figure (Unity) ⚠️ *Partial - Not Yet Completed*
 Unity desktop client framework is implemented but has deployment issues:
 - Backend API fully functional (TTS, STT, WebSocket)
+- Web Chat UI working for basic testing
 - Unity scripts complete but require manual Editor setup
 - Placeholder avatar works for basic testing
 - VRM model loading framework ready but needs actual model files
 
 **Current State:**
 - Backend runs successfully without Qdrant (graceful degradation)
+- Web Chat UI at http://localhost:8000 works for testing
 - Unity placeholder avatar appears with color-based emotions
 - WebSocket connection and chat messaging functional
 - TTS audio generation works (Edge-TTS)
 - Debug UI displays connection status and messages
 
-**To Test Phase 3:**
+**To Test Phase 3 (Web UI):**
 1. Start backend: `./start.sh` → option 1 (Quick Start)
+2. Open browser: http://localhost:8000
+3. Send messages to test chat
+
+**To Test Phase 3 (Unity):**
+1. Copy `frontend/` folder to Windows filesystem
 2. Open Unity project in Unity Hub
 3. Open Main scene and press Play
 4. See placeholder avatar and debug UI
@@ -173,6 +202,7 @@ Unity desktop client framework is implemented but has deployment issues:
 - Use `[SerializeField]` for Editor-exposed fields
 - Event-driven architecture for WebSocket communication
 - Reflection-based component detection for optional dependencies (UniVRM)
+- **Important**: Always use `using Debug = UnityEngine.Debug;` when using Debug class to avoid namespace conflicts
 
 ### File Organization
 - One class per file where practical
@@ -187,6 +217,7 @@ Unity desktop client framework is implemented but has deployment issues:
 export LLM_API_KEY="your-api-key-here"
 export LLM_BASE_URL="https://api.deepseek.com/v1"
 export LLM_MODEL="deepseek-chat"
+export LLM_MAX_TOKENS="8192"  # DeepSeek max is 8192
 
 # Qdrant (optional - graceful degradation if unavailable)
 export QDRANT_HOST="localhost"
@@ -247,9 +278,9 @@ pytest-asyncio>=0.23.0
 ```
 
 ### Unity (Packages/manifest.json)
-- UniVRM 2.1.0 (for VRM model loading - optional)
-- TextMeshPro (for UI)
+- TextMeshPro (for UI) - version 3.0.6
 - Newtonsoft.Json (for JSON serialization)
+- UniVRM 2.1.0 (for VRM model loading - optional, not included)
 
 ## VRAM Constraint
 Total system must stay under 12GB VRAM:
@@ -261,6 +292,7 @@ Total system must stay under 12GB VRAM:
 - Integration tests for API endpoints
 - Sandbox isolation tests for code execution
 - Phase 3 integration tests (TTS, STT, WebSocket)
+- Web UI manual testing
 
 ## Known Issues & Workarounds
 
@@ -270,6 +302,7 @@ Total system must stay under 12GB VRAM:
 Error: failed to resolve reference "docker.io/qdrant/qdrant:latest"
 ```
 **Workaround**: Run backend without Qdrant - graceful degradation mode disables memory features but keeps chat working.
+**Status**: Qdrant integration not yet tested.
 
 ### Unity VRM Models
 **Issue**: No VRM model included due to licensing
@@ -278,6 +311,14 @@ Error: failed to resolve reference "docker.io/qdrant/qdrant:latest"
 ### Scene Setup
 **Issue**: Requires manual Unity Editor configuration
 **Workaround**: Run editor scripts: `ProjectDualis → Setup Main Scene` → `Auto-Connect UI Elements`
+
+### Unity on WSL
+**Issue**: Unity Editor cannot run directly in WSL2
+**Workaround**: Copy `frontend/` folder to Windows filesystem before opening in Unity Hub
+
+### Namespace Conflicts in Unity
+**Issue**: `ProjectDualis.Debug` namespace conflicts with Unity's `Debug` class
+**Fix**: Renamed to `ProjectDualis.DebugUI`, added `using Debug = UnityEngine.Debug;` alias to affected files
 
 ## Quick Reference
 
@@ -292,6 +333,9 @@ Error: failed to resolve reference "docker.io/qdrant/qdrant:latest"
 
 ### Testing Chat
 ```bash
+# Via Web UI (easiest)
+# Open browser: http://localhost:8000
+
 # Via API
 curl -X POST http://localhost:8000/api/v1/chat \
   -H "Content-Type: application/json" \
@@ -305,4 +349,15 @@ curl -X POST http://localhost:8000/api/v1/chat \
 ```bash
 ./start.sh  # Option 5 (View Backend Logs)
 # Or directly: tail -f logs/backend.log
+```
+
+### Unity Development Workflow
+```bash
+# 1. Make changes to Unity scripts in WSL
+# 2. Copy frontend folder to Windows
+xcopy "\\wsl.localhost\Ubuntu\home\winjayran\projectDualis\frontend" "C:\Users\YOUR_USERNAME\Desktop\ProjectDualis-Unity" /E /I /H /Y
+
+# 3. Open project in Unity Hub on Windows
+# 4. Make changes, test, save
+# 5. Copy back to WSL if needed (optional)
 ```

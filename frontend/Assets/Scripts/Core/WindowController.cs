@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Runtime.InteropServices;
+using Debug = UnityEngine.Debug;
 
 namespace ProjectDualis.Core
 {
@@ -72,6 +73,7 @@ namespace ProjectDualis.Core
         private const uint SWP_FRAMECHANGED = 0x0020;
         private const uint SWP_SHOWWINDOW = 0x0040;
         private const uint SWP_HIDEWINDOW = 0x0080;
+        private const uint SWP_NOOWNERZORDER = 0x0200;
 
         // HWND insertion points
         private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);

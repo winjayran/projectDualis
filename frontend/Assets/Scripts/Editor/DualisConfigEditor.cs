@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using Debug = UnityEngine.Debug;
 
 namespace ProjectDualis.Core
 {
@@ -87,7 +88,7 @@ namespace ProjectDualis.Core
     /// Custom editor for DualisConfig Inspector.
     /// </summary>
     [CustomEditor(typeof(DualisConfig))]
-    public class DualisConfigInspector : Editor
+    public class DualisConfigInspector : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {

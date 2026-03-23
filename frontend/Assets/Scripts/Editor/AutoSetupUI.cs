@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEditor;
 using TMPro;
 using UnityEngine.UI;
+using ProjectDualis.UI;
+using Debug = UnityEngine.Debug;
 
 namespace ProjectDualis.Editor
 {
@@ -74,7 +76,7 @@ namespace ProjectDualis.Editor
             var chatTexts = Object.FindObjectsOfType<TextMeshProUGUI>(true);
             foreach (var text in chatTexts)
             {
-                if (text.name.ToLower().Contains("message") || text.transform.parent?.name.ToLower().Contains("chat"))
+                if (text.name.ToLower().Contains("message") || (text.transform.parent != null && text.transform.parent.name.ToLower().Contains("chat")))
                 {
                     serialized.FindProperty("chatDisplay").objectReferenceValue = text;
                     Debug.Log($"[AutoSetup] Connected chatDisplay: {text.name}");

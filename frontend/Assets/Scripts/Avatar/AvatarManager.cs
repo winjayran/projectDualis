@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using ProjectDualis.Core;
+using Debug = UnityEngine.Debug;
 
 namespace ProjectDualis.Avatar
 {

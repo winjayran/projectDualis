@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
+using ProjectDualis.Core;
+using Debug = UnityEngine.Debug;
 
 namespace ProjectDualis.Network
 {

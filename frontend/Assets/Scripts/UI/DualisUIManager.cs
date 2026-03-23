@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using ProjectDualis.Core;
+using Debug = UnityEngine.Debug;
 
 namespace ProjectDualis.UI
 {
